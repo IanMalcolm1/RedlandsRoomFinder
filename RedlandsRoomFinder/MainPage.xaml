@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:RedlandsRoomFinder"
+             xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="RedlandsRoomFinder.MainPage">
+
+    <ContentPage.Resources>
+        <local:MapViewModel x:Key="MapViewModel"/>
+        <local:ObservableDimension x:Key="StandardButtonHeight"/>
+
+        <toolkit:MultiMathExpressionConverter x:Key="MathConverter" />
+
+        <RoundRectangle x:Key="locationChooserBackgroundShape" CornerRadius="5"/>
+        <Style x:Key="locationChooserStyle" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="LightGray"/>
+            <Setter Property="ZIndex" Value="1"/>
+            <Setter Property="Grid.ColumnSpan" Value="5"/>
+            <Setter Property="Margin" Value="3,1,3,1"/>
+            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="StrokeShape" Value="{StaticResource locationChooserBackgroundShape}"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid ColumnDefinitions="*,*,*,*,*">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <!--Map. Should cover the full screen behind all of the other elements-->
+        <esri:MapView x:Name="MainMapView"
+                  ZIndex="0"
+                  Grid.Column="0"
+                  Grid.Row="0"
+                  Grid.ColumnSpan="5"
+                  Grid.RowSpan="6"
+                  Map="{Binding Map, Source={StaticResource MapViewModel}}" />
+
+        <!--Start location chooser. Should be the top element -->
+        <Border Style="{StaticResource locationChooserStyle}">
+            <Grid Height="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWayToSource}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="6*"/>
+                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
+                <SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>
+                <ImageButton Source="current_location.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
+                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
+            </Grid>
+        </Border>
+
+        <!--Destination chooser. Should be the second-to-top element-->
+        <Border Grid.Row="1" Style="{StaticResource locationChooserStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition>
+                        <ColumnDefinition.Width>
+                            <MultiBinding Converter="{StaticResource MathConverter}" ConverterParameter="max(x0, 0)">
+                                <Binding Path="Width" Source="{x:Reference startLabel}"/>
+                            </MultiBinding>
+                        </ColumnDefinition.Width>
+                    </ColumnDefinition>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Text="Dest:" VerticalTextAlignment="Center"/>
+                <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/>
+                <ImageButton Source="hand_finger.png" Aspect="AspectFill" Grid.Column="2"/>
+            </Grid>
+        </Border>
+
+        <Picker Title="F1"
+                Grid.Row="2"
+                Grid.Column="4"
+                Background="Black"
+                HorizontalOptions="End"
+                WidthRequest="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}">
+            <Picker.ItemsSource>
+                <x:Array Type="{x:Type x:String}">
+                    <x:String>B</x:String>
+                    <x:String>G</x:String>
+                    <x:String>F1</x:String>
+                    <x:String>F2</x:String>
+                </x:Array>
+            </Picker.ItemsSource>
+        </Picker>
+
+        <Border x:Name="SliderBorder"
+                Grid.Row="3"
+                Grid.ColumnSpan="5"
+                Padding="0,0,-10,0"
+                Margin="5,1,5,1"
+                StrokeThickness="0">
+            <Slider
+                Rotation="90"
+                HorizontalOptions="End"
+                HeightRequest="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"
+                WidthRequest="{Binding Height, Source={x:Reference SliderBorder}, Mode=OneWay}">
+            </Slider>
+        </Border>
+    </Grid>
+
+</ContentPage>
