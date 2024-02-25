@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.Mapping.Floor;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Map = Esri.ArcGISRuntime.Mapping.Map;
 
 namespace RedlandsRoomFinder
 {
+    /* TODO
+     * isChoosingLocation: field for when user is clicking a point to choose their location
+     * UseGPSLocationCommand: implement using gps location
+     * Floor: Bind with floor picker and slider views
+     * FloorLayerID: maybe search through feature layers to find the correct id on loading the map
+     */
     internal class MapViewModel : INotifyPropertyChanged
     {
+        private const int FloorLayerID = 2;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public MapViewModel() {
-            _ =  SetUpMap();
+            _ = Initialize();
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName="")
@@ -29,6 +33,32 @@ namespace RedlandsRoomFinder
         {
             get { return _map; }
             set { _map = value; OnPropertyChanged(); }
+        }
+
+
+        private int _floor;
+        public int Floor
+        {
+            set
+            {
+                _floor = value;
+                FilterFloors(); 
+                OnPropertyChanged();
+            }
+            get { return _floor; }
+        }
+
+
+        public Command FilterFloorCommand { private set; get; }
+
+        //TODO: implement this:
+        //public Command UseGPSLocationCommand { private set; get; }
+
+        private async Task Initialize()
+        {
+            await SetUpMap();
+            SetUpCommands();
+            Floor = 0;
         }
 
         private async Task SetUpMap()
@@ -56,6 +86,22 @@ namespace RedlandsRoomFinder
             await inStream.CopyToAsync(outStream);
 
             return directoryPath;
+        }
+
+
+        private void SetUpCommands()
+        {
+            FilterFloorCommand = new Command(
+                execute: FilterFloors,
+                canExecute: () => { return true; }
+                );
+        }
+
+        private void FilterFloors()
+        {
+            var floorLayer = _map?.OperationalLayers[FloorLayerID] as FeatureLayer;
+            if ( floorLayer == null ) { return; }
+            floorLayer.DefinitionExpression = $"Floor = {_floor}";
         }
     }
 }
