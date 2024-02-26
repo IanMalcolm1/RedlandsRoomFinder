@@ -3,6 +3,7 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Mapping.Floor;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Map = Esri.ArcGISRuntime.Mapping.Map;
 
 namespace RedlandsRoomFinder
@@ -16,6 +17,7 @@ namespace RedlandsRoomFinder
     internal class MapViewModel : INotifyPropertyChanged
     {
         private const int FloorLayerID = 2;
+        private const int TotalFloors = 4;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -41,15 +43,19 @@ namespace RedlandsRoomFinder
         {
             set
             {
-                _floor = value;
-                FilterFloors(); 
-                OnPropertyChanged();
+                if (value>=0 && value<TotalFloors)
+                {
+                    _floor = value;
+                    FilterFloors();
+                    OnPropertyChanged();
+                }
             }
             get { return _floor; }
         }
 
 
-        public Command FilterFloorCommand { private set; get; }
+        public Command IncrementFloorCommand { private set; get; }
+        public Command DecrementFloorCommand { private set; get; }
 
         //TODO: implement this:
         //public Command UseGPSLocationCommand { private set; get; }
@@ -91,10 +97,12 @@ namespace RedlandsRoomFinder
 
         private void SetUpCommands()
         {
-            FilterFloorCommand = new Command(
-                execute: FilterFloors,
-                canExecute: () => { return true; }
-                );
+            IncrementFloorCommand = new Command(
+                execute: () => { Floor += 1; },
+                canExecute: () => { return true; } );
+            DecrementFloorCommand = new Command(
+                execute: () => { Floor -= 1; },
+                canExecute: () => { return true; });
         }
 
         private void FilterFloors()

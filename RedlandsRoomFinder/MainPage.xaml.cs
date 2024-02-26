@@ -21,5 +21,16 @@ namespace RedlandsRoomFinder
         {
             await DisplayAlert("Event", "Button Clicked", "Ok");
         }
+
+
+        // These methods are here because commands were not working for my buttons ¯\_(ツ)_/¯
+        private void OnIncrementFloorButtonClicked(object sender, EventArgs e)
+        {
+            MainMapViewModel.Floor++;
+        }
+        private void OnDecrementFloorButtonClicked(object sender, EventArgs e)
+        {
+            MainMapViewModel.Floor--;
+        }
     }
 }

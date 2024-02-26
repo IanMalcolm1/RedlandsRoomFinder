@@ -49,8 +49,7 @@
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
     <!--Increase svg conversion size to reduce blurriness-->
-    <MauiImage Update="Resources\Images\hand_click.svg" Resize="True" BaseSize="144,144" />
-    <MauiImage Update="Resources\Images\current_location.svg" Resize="True" BaseSize="144,144" />
+    <MauiImage Update="Resources\Images\*.svg" Resize="True" BaseSize="144,144" />
 
 		<!-- Custom Fonts -->
 
@@ -65,6 +64,8 @@
 	  <None Remove="Resources\Images\current_location.svg" />
 	  <None Remove="Resources\Images\hand_click.svg" />
 	  <None Remove="Resources\Images\hand_finger.svg" />
+	  <None Remove="Resources\Images\stairs_down.svg" />
+	  <None Remove="Resources\Images\stairs_up.svg" />
 	  <None Remove="Resources\Raw\mobiletestpackage.mmpk" />
 	</ItemGroup>
 
