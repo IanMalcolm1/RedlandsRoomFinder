@@ -46,6 +46,7 @@
                   Grid.ColumnSpan="5"
                   Grid.RowSpan="6"
                   Margin="-3"
+                  GeoViewTapped="OnMapViewTapped"
                   Map="{Binding Map, Source={StaticResource MapViewModel}}" />
 
         <!--Start location chooser. Should be the top element -->

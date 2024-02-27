@@ -10,35 +10,38 @@ namespace RedlandsRoomFinder
 {
     /* TODO
      * isChoosingLocation: field for when user is clicking a point to choose their location
-     * UseGPSLocationCommand: implement using gps location
-     * Floor: Bind with floor picker and slider views
-     * FloorLayerID: maybe search through feature layers to find the correct id on loading the map
+     * FloorLayerID: maybe search through feature layer names to find the correct id on loading the map
      */
     internal class MapViewModel : INotifyPropertyChanged
     {
         private const int FloorLayerID = 2;
         private const int TotalFloors = 4;
 
+        private Map? _map;
+        private int _floor;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public MapViewModel() {
+        public MapViewModel()
+        {
             _ = Initialize();
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName="")
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private Map? _map;
         public Map? Map
         {
             get { return _map; }
             set { _map = value; OnPropertyChanged(); }
         }
 
+        public FeatureLayer? FloorLayer {
+            get { return (FeatureLayer?)_map?.OperationalLayers[FloorLayerID]; }
+        }
 
-        private int _floor;
         public int Floor
         {
             set
@@ -91,6 +94,10 @@ namespace RedlandsRoomFinder
             var floorLayer = _map?.OperationalLayers[FloorLayerID] as FeatureLayer;
             if ( floorLayer == null ) { return; }
             floorLayer.DefinitionExpression = $"Floor = {_floor}";
+        }
+
+        public void SelectFeature(Feature feature)
+        {
         }
     }
 }
