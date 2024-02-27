@@ -53,17 +53,9 @@ namespace RedlandsRoomFinder
             get { return _floor; }
         }
 
-
-        public Command IncrementFloorCommand { private set; get; }
-        public Command DecrementFloorCommand { private set; get; }
-
-        //TODO: implement this:
-        //public Command UseGPSLocationCommand { private set; get; }
-
         private async Task Initialize()
         {
             await SetUpMap();
-            SetUpCommands();
             Floor = 0;
         }
 
@@ -92,17 +84,6 @@ namespace RedlandsRoomFinder
             await inStream.CopyToAsync(outStream);
 
             return directoryPath;
-        }
-
-
-        private void SetUpCommands()
-        {
-            IncrementFloorCommand = new Command(
-                execute: () => { Floor += 1; },
-                canExecute: () => { return true; } );
-            DecrementFloorCommand = new Command(
-                execute: () => { Floor -= 1; },
-                canExecute: () => { return true; });
         }
 
         private void FilterFloors()
