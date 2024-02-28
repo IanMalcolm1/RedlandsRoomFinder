@@ -11,7 +11,7 @@ namespace RedlandsRoomFinder
 {
     public partial class MainPage : ContentPage
     {
-        private GraphicsOverlay _mapPopUpOverlay;
+        private GraphicsOverlay _mapRouteOverlay;
 
         public MainPage()
         {
@@ -25,9 +25,8 @@ namespace RedlandsRoomFinder
             MapPoint mapCenterPoint = new MapPoint(34.063367, -117.164185, SpatialReferences.Wgs84);
             MainMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 100000));
 
-            _mapPopUpOverlay = new GraphicsOverlay { Id = "PopOverlay" };
-            MainMapView.GraphicsOverlays?.Add(_mapPopUpOverlay);
-            //TODO: implement _mapPopUpOverlay properly
+            _mapRouteOverlay = new GraphicsOverlay { Id = "PopOverlay" };
+            MainMapView.GraphicsOverlays?.Add(_mapRouteOverlay); //TODO: use with ESRI routing classes
         }
 
 
@@ -37,33 +36,19 @@ namespace RedlandsRoomFinder
         }
 
 
-        private async void OnMapViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
+        private async void OnPickLocationButtonClicked(object sender, EventArgs e)
         {
-            MainMapView.DismissCallout();
-            MainMapViewModel.FloorLayer?.ClearSelection();
-
-            IReadOnlyList<IdentifyLayerResult> idResults = await MainMapView.IdentifyLayersAsync(e.Position, 10, false, 1);
-
-            string? resultInfo = null;
-            foreach (IdentifyLayerResult result in idResults)
-            {
-                if (result.LayerContent.Name == MainMapViewModel.FloorLayer?.Name)
-                {
-                    Feature room = (Feature)result.GeoElements[0];
-                    MainMapViewModel.FloorLayer.SelectFeature(room);
-
-                    var attributes = result.GeoElements[0].Attributes;
-                    resultInfo = $"Building: {attributes["BuildingId"]}\nFloor: {attributes["Floor"]}";
-                }
-            }
-            
-            if (resultInfo != null)
-            {
-                MainMapView.ShowCalloutAt(e.Location, new CalloutDefinition(null, resultInfo));
-            }
+            var button = (ImageButton) sender;
+            var id = button.Id;
+            await DisplayAlert("Event", $"Pick Location Button Clicked\nSource: {id}", "Ok");
         }
 
-        // These two methods are here because commands were not working for my buttons ¯\_(ツ)_/¯
+
+        private async void OnMapViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
+        {
+            await MainMapViewModel.SelectLocation(e.Location);
+        }
+
         private void OnIncrementFloorButtonClicked(object sender, EventArgs e)
         {
             MainMapView.DismissCallout();

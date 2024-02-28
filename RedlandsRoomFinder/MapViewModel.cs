@@ -1,4 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Location;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Mapping.Floor;
 using System.ComponentModel;
@@ -18,6 +20,7 @@ namespace RedlandsRoomFinder
         private const int TotalFloors = 4;
 
         private Map? _map;
+        private FeatureLayer? _roomsLayer;
         private int _floor;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -38,10 +41,6 @@ namespace RedlandsRoomFinder
             set { _map = value; OnPropertyChanged(); }
         }
 
-        public FeatureLayer? FloorLayer {
-            get { return (FeatureLayer?)_map?.OperationalLayers[FloorLayerID]; }
-        }
-
         public int Floor
         {
             set
@@ -59,6 +58,7 @@ namespace RedlandsRoomFinder
         private async Task Initialize()
         {
             await SetUpMap();
+            _roomsLayer = (FeatureLayer?)_map?.OperationalLayers[FloorLayerID];
             Floor = 0;
         }
 
@@ -91,13 +91,33 @@ namespace RedlandsRoomFinder
 
         private void FilterFloors()
         {
-            var floorLayer = _map?.OperationalLayers[FloorLayerID] as FeatureLayer;
-            if ( floorLayer == null ) { return; }
-            floorLayer.DefinitionExpression = $"Floor = {_floor}";
+            if ( _roomsLayer== null ) { return; } //TODO: raise exception
+
+            _roomsLayer.DefinitionExpression = $"Floor = {_floor}";
         }
 
-        public void SelectFeature(Feature feature)
+        public async Task SelectLocation(MapPoint loc)
         {
+            if (loc==null) { return; } //TODO: make exception
+            if (_roomsLayer == null) { return; } //TODO: make exception
+
+            _roomsLayer.ClearSelection();
+
+            var queryParams = new QueryParameters
+            {
+                Geometry = loc,
+                SpatialRelationship=SpatialRelationship.Intersects
+            };
+
+            var queryResult = await _roomsLayer.FeatureTable.QueryFeaturesAsync(queryParams);
+            foreach (Feature feature in queryResult)
+            {
+                var featureFloor = (short) feature.Attributes["Floor"];
+                if (featureFloor == _floor)
+                {
+                    _roomsLayer.SelectFeature(feature);
+                }
+            }
         }
     }
 }

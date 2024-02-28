@@ -62,7 +62,7 @@
                 <Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>
                 <ImageButton Source="current_location.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
-                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
+                <ImageButton Source="hand_finger.png" Clicked="OnPickLocationButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
             </Grid>
         </Border>
 
@@ -83,7 +83,7 @@
 
                 <Label Text="Dest:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/>
-                <ImageButton Source="hand_finger.png" Aspect="AspectFill" Grid.Column="2"/>
+                <ImageButton Source="hand_finger.png" Clicked="OnPickLocationButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
             </Grid>
         </Border>
 
