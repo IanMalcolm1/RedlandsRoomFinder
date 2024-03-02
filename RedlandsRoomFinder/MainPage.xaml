@@ -50,40 +50,45 @@
                   Map="{Binding Map, Source={StaticResource MapViewModel}}" />
 
         <!--Start location chooser. Should be the top element -->
-        <Border Style="{StaticResource locationChooserStyle}">
-            <Grid Height="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWayToSource}">
+        <Border Style="{StaticResource locationChooserStyle}"
+                BindingContext="{StaticResource StandardButtonHeight}"
+                x:DataType="local:ObservableDimension">
+            <Grid Height="{Binding Dimension, Mode=OneWayToSource}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="6*"/>
-                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
-                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+                    <ColumnDefinition Width="{Binding Dimension, Mode=OneWay}"/>
+                    <ColumnDefinition Width="{Binding Dimension, Mode=OneWay}"/>
                 </Grid.ColumnDefinitions>
 
                 <Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>
                 <ImageButton Source="current_location.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
-                <ImageButton Source="hand_finger.png" Clicked="OnPickLocationButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
+                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
             </Grid>
         </Border>
 
         <!--Destination chooser. Should be the second-to-top element-->
-        <Border Grid.Row="1" Style="{StaticResource locationChooserStyle}">
+        <Border Grid.Row="1"
+                Style="{StaticResource locationChooserStyle}"
+                BindingContext="{StaticResource StandardButtonHeight}"
+                x:DataType="local:ObservableDimension">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition>
-                        <ColumnDefinition.Width>
+                        <ColumnDefinition.Width> <!-- Needs to match width of start label -->
                             <MultiBinding Converter="{StaticResource MathConverter}" ConverterParameter="max(x0, 0)">
                                 <Binding Path="Width" Source="{x:Reference startLabel}"/>
                             </MultiBinding>
                         </ColumnDefinition.Width>
                     </ColumnDefinition>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+                    <ColumnDefinition Width="{Binding Dimension, Mode=OneWay}"/>
                 </Grid.ColumnDefinitions>
 
                 <Label Text="Dest:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/>
-                <ImageButton Source="hand_finger.png" Clicked="OnPickLocationButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
+                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
             </Grid>
         </Border>
 
@@ -108,33 +113,22 @@
         <ImageButton Grid.Row="3"
                      Grid.Column="4"
                      Source="stairs_up.png"
-                     Clicked="OnIncrementFloorButtonClicked"
                      Style="{StaticResource uncontainedImageButtonStyle}"
-                     HorizontalOptions="End"/>
+                     HorizontalOptions="End"
+                     
+                     BindingContext="{StaticResource MapViewModel}"
+                     x:DataType="local:MapViewModel"
+                     Command="{Binding IncrementFloorLevelCommand}"/>
 
         <ImageButton Grid.Row="4"
                      Grid.Column="4"
                      Source="stairs_down.png"
-                     Clicked="OnDecrementFloorButtonClicked"
                      Style="{StaticResource uncontainedImageButtonStyle}"
-                     HorizontalOptions="End"/>
-
-        <!-- Slider is now a stretch goal that may need to be implemented on a per-OS basis
-            <Border x:Name="SliderBorder"
-                    Grid.Row="3"
-                    Grid.ColumnSpan="5"
-                    Padding="0,0,-10,0"
-                    Margin="5,1,5,1"
-                    StrokeThickness="0">
-                <Slider
-                    Rotation="90"
-                    HorizontalOptions="End"
-                    TranslationX="150"
-                    HeightRequest="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"
-                    WidthRequest="{Binding Height, Source={x:Reference SliderBorder}, Mode=OneWay}">
-                </Slider>
-            </Border>
-        -->
+                     HorizontalOptions="End"
+                     
+                     BindingContext="{StaticResource MapViewModel}"
+                     x:DataType="local:MapViewModel"
+                     Command="{Binding DecrementFloorLevelCommand}"/>
     </Grid>
 
 </ContentPage>

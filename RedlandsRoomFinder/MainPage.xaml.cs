@@ -36,28 +36,9 @@ namespace RedlandsRoomFinder
         }
 
 
-        private async void OnPickLocationButtonClicked(object sender, EventArgs e)
-        {
-            var button = (ImageButton) sender;
-            var id = button.Id;
-            await DisplayAlert("Event", $"Pick Location Button Clicked\nSource: {id}", "Ok");
-        }
-
-
         private async void OnMapViewTapped(object sender, Esri.ArcGISRuntime.Maui.GeoViewInputEventArgs e)
         {
             await MainMapViewModel.SelectLocation(e.Location);
-        }
-
-        private void OnIncrementFloorButtonClicked(object sender, EventArgs e)
-        {
-            MainMapView.DismissCallout();
-            MainMapViewModel.Floor++;
-        }
-        private void OnDecrementFloorButtonClicked(object sender, EventArgs e)
-        {
-            MainMapView.DismissCallout();
-            MainMapViewModel.Floor--;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace RedlandsRoomFinder
     internal class MapViewModel : INotifyPropertyChanged
     {
         private const int FloorLayerID = 2;
-        private const int TotalFloors = 4;
+        private const int TotalFloors = 2;
 
         private Map? _map;
         private FeatureLayer? _roomsLayer;
@@ -28,6 +28,14 @@ namespace RedlandsRoomFinder
         public MapViewModel()
         {
             _ = Initialize();
+
+            //Commands must be set without async as otherwise they will be null when bound to calling views
+            DecrementFloorLevelCommand = new Command(
+                execute: () => { Floor--; },
+                canExecute: () => { return true; });
+            IncrementFloorLevelCommand = new Command(
+                execute: () => { Floor++; },
+                canExecute: () => { return true; });
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
@@ -40,6 +48,9 @@ namespace RedlandsRoomFinder
             get { return _map; }
             set { _map = value; OnPropertyChanged(); }
         }
+
+        public Command DecrementFloorLevelCommand { get; private set; }
+        public Command IncrementFloorLevelCommand { get; private set; }
 
         public int Floor
         {
