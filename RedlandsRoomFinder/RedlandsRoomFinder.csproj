@@ -67,7 +67,7 @@
 	  <None Remove="Resources\Images\stairs_down.svg" />
 	  <None Remove="Resources\Images\stairs_up.svg" />
 	  <None Remove="Resources\Raw\mobiletestpackage.mmpk" />
-	  <None Remove="Resources\Raw\testnetworkpackage4.mmpk" />
+	  <None Remove="Resources\Raw\testnetworkpackage.mmpk" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -99,7 +99,7 @@
 	  <MauiAsset Update="Resources\Raw\mobiletestpackage.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </MauiAsset>
-	  <MauiAsset Update="Resources\Raw\testnetworkpackage4.mmpk">
+	  <MauiAsset Update="Resources\Raw\testnetworkpackage.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </MauiAsset>
 	</ItemGroup>

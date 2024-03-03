@@ -84,7 +84,7 @@ namespace RedlandsRoomFinder
         {
             /* Bundled assets are read-only. This copies the package to the AppDataDirectory
              * so that it can be modified if necessary *shrugs* */
-            string packageName = "testnetworkpackage4.mmpk";
+            string packageName = "testnetworkpackage.mmpk";
             string newPath = await moveToAppDataDirectory(packageName);
 
             /* Map stuff */

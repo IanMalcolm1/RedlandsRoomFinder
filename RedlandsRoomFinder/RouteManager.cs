@@ -1,4 +1,5 @@
 ﻿using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
 using Esri.ArcGISRuntime.UI;
 using Microsoft.Maui.Primitives;
@@ -85,7 +86,8 @@ namespace RedlandsRoomFinder
             var routeResult = await _router.SolveRouteAsync(routeParams);
             if (routeResult?.Routes?.FirstOrDefault() is Route route)
             {
-                RouteGraphic = new Graphic(route.RouteGeometry);
+                SimpleLineSymbol routeSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Purple, 8.0);
+                RouteGraphic = new Graphic(route.RouteGeometry, routeSymbol);
             }
         }
     }
