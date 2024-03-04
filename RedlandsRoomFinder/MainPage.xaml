@@ -118,7 +118,7 @@
                      
                      BindingContext="{StaticResource MapViewModel}"
                      x:DataType="local:MapViewModel"
-                     Command="{Binding IncrementFloorLevelCommand}"/>
+                     Command="{Binding IncrementFloorCommand}"/>
 
         <ImageButton Grid.Row="4"
                      Grid.Column="4"
@@ -128,7 +128,7 @@
                      
                      BindingContext="{StaticResource MapViewModel}"
                      x:DataType="local:MapViewModel"
-                     Command="{Binding DecrementFloorLevelCommand}"/>
+                     Command="{Binding DecrementFloorCommand}"/>
     </Grid>
 
 </ContentPage>

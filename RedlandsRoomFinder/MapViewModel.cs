@@ -3,6 +3,8 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Location;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Mapping.Floor;
+using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.UI;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -16,32 +18,29 @@ namespace RedlandsRoomFinder
      */
     internal class MapViewModel : INotifyPropertyChanged
     {
-        private const int FloorLayerID = 2;
+        private const int FloorLayerID = 1;
         private const int TotalFloors = 2;
 
         private Map? _map;
         private FeatureLayer? _roomsLayer;
         private int _floor;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private RouteManager _routeManager;
 
         public MapViewModel()
         {
             _ = Initialize();
 
             //Commands must be set without async as otherwise they will be null when bound to calling views
-            DecrementFloorLevelCommand = new Command(
+            DecrementFloorCommand = new Command(
                 execute: () => { Floor--; },
                 canExecute: () => { return true; });
-            IncrementFloorLevelCommand = new Command(
+            IncrementFloorCommand = new Command(
                 execute: () => { Floor++; },
                 canExecute: () => { return true; });
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public Map? Map
         {
@@ -49,8 +48,13 @@ namespace RedlandsRoomFinder
             set { _map = value; OnPropertyChanged(); }
         }
 
-        public Command DecrementFloorLevelCommand { get; private set; }
-        public Command IncrementFloorLevelCommand { get; private set; }
+        public Graphic? RouteGraphic
+        {
+            get => _routeManager?.RouteGraphic;
+        }
+
+        public Command DecrementFloorCommand { get; private set; }
+        public Command IncrementFloorCommand { get; private set; }
 
         public int Floor
         {
@@ -71,19 +75,32 @@ namespace RedlandsRoomFinder
             await SetUpMap();
             _roomsLayer = (FeatureLayer?)_map?.OperationalLayers[FloorLayerID];
             Floor = 0;
+
+            _routeManager = new RouteManager(_map.TransportationNetworks[0]);
+            _routeManager.PropertyChanged += HandleRouteChangedEvent;
         }
 
         private async Task SetUpMap()
         {
             /* Bundled assets are read-only. This copies the package to the AppDataDirectory
              * so that it can be modified if necessary *shrugs* */
-            string packageName = "mobiletestpackage.mmpk";
+            string packageName = "testnetworkpackage4.mmpk";
             string newPath = await moveToAppDataDirectory(packageName);
 
             /* Map stuff */
             MobileMapPackage mapPackage = new MobileMapPackage(newPath);
             await mapPackage.LoadAsync();
             this.Map = mapPackage.Maps.FirstOrDefault();
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void HandleRouteChangedEvent(object? sender, EventArgs e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RouteGraphic)));
         }
 
         private async Task<string> moveToAppDataDirectory(string fileName)
@@ -111,6 +128,15 @@ namespace RedlandsRoomFinder
         {
             if (loc==null) { return; } //TODO: make exception
             if (_roomsLayer == null) { return; } //TODO: make exception
+
+            if (_routeManager.StartStop == null)
+            {
+                _routeManager.StartStop = loc;
+            }
+            else
+            {
+                _routeManager.DestStop = loc;
+            }
 
             _roomsLayer.ClearSelection();
 

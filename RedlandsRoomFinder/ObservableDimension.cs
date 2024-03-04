@@ -26,13 +26,8 @@ namespace RedlandsRoomFinder
             set
             {
                 dimension = value;
-                OnPropertyChanged();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Dimension)));
             }
-        }
-
-        public void OnPropertyChanged()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Dimension)));
         }
     }
 }
