@@ -24,6 +24,7 @@
         <Style x:Key="uncontainedImageButtonStyle" TargetType="ImageButton">
             <Setter Property="Aspect" Value="AspectFill"/>
             <Setter Property="WidthRequest" Value="{Binding Dimension, Source={StaticResource StandardButtonHeight}, Mode=OneWay}"/>
+            <Setter Property="CornerRadius" Value="5"/>
         </Style>
     </ContentPage.Resources>
 
@@ -64,7 +65,16 @@
                 <Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>
                 <ImageButton Source="current_location.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
-                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="3"/>
+                <ImageButton Source="hand_finger.png"
+                             Aspect="AspectFill"
+                             Grid.Column="3"
+                             BindingContext="{StaticResource MapViewModel}"
+                             x:DataType="local:MapViewModel"
+                             Command="{Binding ChooseLocationCommand}">
+                    <ImageButton.CommandParameter>
+                        <x:Int32>0</x:Int32> <!--Corresponds to MapViewModel.WaitingState.Start-->
+                    </ImageButton.CommandParameter>
+                </ImageButton>
             </Grid>
         </Border>
 
@@ -88,7 +98,16 @@
 
                 <Label Text="Dest:" VerticalTextAlignment="Center"/>
                 <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/>
-                <ImageButton Source="hand_finger.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
+                <ImageButton Source="hand_finger.png"
+                             Aspect="AspectFill"
+                             Grid.Column="2"
+                             BindingContext="{StaticResource MapViewModel}"
+                             x:DataType="local:MapViewModel"
+                             Command="{Binding ChooseLocationCommand}">
+                    <ImageButton.CommandParameter>
+                        <x:Int32>1</x:Int32> <!--Corresponds to MapViewModel.WaitingState.Dest-->
+                    </ImageButton.CommandParameter>
+                </ImageButton>
             </Grid>
         </Border>
 
@@ -110,6 +129,23 @@
             </Picker.ItemsSource>
         </Picker>
 
+        <!-- Cancel picking location -->
+        <ImageButton Grid.Row="2"
+                     Grid.Column="0"
+                     Source="hand_finger_off.png"
+                     BackgroundColor="Red"
+                     Style="{StaticResource uncontainedImageButtonStyle}"
+                     HorizontalOptions="Start"
+                     
+                     BindingContext="{StaticResource MapViewModel}"
+                     IsVisible="{Binding IsWaitingForStopInput}"
+                     Command="{Binding ChooseLocationCommand}">
+            <ImageButton.CommandParameter>
+                <x:Int32>2</x:Int32> <!--Corresponds to MapViewModel.WaitingState.NotWaiting-->
+            </ImageButton.CommandParameter>
+        </ImageButton>
+
+        <!-- Move up one floor button -->
         <ImageButton Grid.Row="3"
                      Grid.Column="4"
                      Source="stairs_up.png"
@@ -118,8 +154,13 @@
                      
                      BindingContext="{StaticResource MapViewModel}"
                      x:DataType="local:MapViewModel"
-                     Command="{Binding IncrementFloorCommand}"/>
+                     Command="{Binding ChangeFloorCommand}">
+            <ImageButton.CommandParameter>
+                <x:Char>+</x:Char>
+            </ImageButton.CommandParameter>
+        </ImageButton>
 
+        <!-- Move down one floor button -->
         <ImageButton Grid.Row="4"
                      Grid.Column="4"
                      Source="stairs_down.png"
@@ -128,7 +169,11 @@
                      
                      BindingContext="{StaticResource MapViewModel}"
                      x:DataType="local:MapViewModel"
-                     Command="{Binding DecrementFloorCommand}"/>
+                     Command="{Binding ChangeFloorCommand}">
+            <ImageButton.CommandParameter>
+                <x:Char>-</x:Char>
+            </ImageButton.CommandParameter>
+        </ImageButton>
     </Grid>
 
 </ContentPage>

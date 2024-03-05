@@ -26,18 +26,29 @@ namespace RedlandsRoomFinder
         private int _floor;
 
         private RouteManager _routeManager;
+        private WaitingStates _waitingState;
 
         public MapViewModel()
         {
             _ = Initialize();
 
+            _waitingState = WaitingStates.NotWaiting;
+
             //Commands must be set without async as otherwise they will be null when bound to calling views
-            DecrementFloorCommand = new Command(
-                execute: () => { Floor--; },
-                canExecute: () => { return true; });
-            IncrementFloorCommand = new Command(
-                execute: () => { Floor++; },
-                canExecute: () => { return true; });
+            ChangeFloorCommand = new Command<Char>(
+                execute:
+                (Char c) => {
+                    if (c == '+')
+                        Floor++;
+                    if (c == '-')
+                        Floor--;
+                });
+            ChooseLocationCommand = new Command<Int32>(
+                execute:
+                (Int32 c) =>
+                {
+                    WaitingState = (WaitingStates) c;
+                });
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -53,8 +64,22 @@ namespace RedlandsRoomFinder
             get => _routeManager?.RouteGraphic;
         }
 
-        public Command DecrementFloorCommand { get; private set; }
-        public Command IncrementFloorCommand { get; private set; }
+        public WaitingStates WaitingState
+        {
+            get { return _waitingState; }
+            private set {
+                _waitingState = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsWaitingForStopInput)));
+            }
+        }
+
+        public bool IsWaitingForStopInput
+        {
+            get { return (_waitingState != WaitingStates.NotWaiting); }
+        }
+
+        public Command<Char> ChangeFloorCommand { get; private set; }
+        public Command<Int32> ChooseLocationCommand { get; private set; }
 
         public int Floor
         {
@@ -126,17 +151,8 @@ namespace RedlandsRoomFinder
 
         public async Task SelectLocation(MapPoint loc)
         {
-            if (loc==null) { return; } //TODO: make exception
-            if (_roomsLayer == null) { return; } //TODO: make exception
-
-            if (_routeManager.StartStop == null)
-            {
-                _routeManager.StartStop = loc;
-            }
-            else
-            {
-                _routeManager.DestStop = loc;
-            }
+            if (loc==null) { return; } //TODO: raise exception?
+            if (_roomsLayer == null) { return; } //TODO: raise exception?
 
             _roomsLayer.ClearSelection();
 
@@ -155,6 +171,25 @@ namespace RedlandsRoomFinder
                     _roomsLayer.SelectFeature(feature);
                 }
             }
+
+            switch (_waitingState)
+            {
+                case WaitingStates.NotWaiting:
+                    return;
+                case WaitingStates.Start:
+                    _routeManager.StartStop = loc;
+                    break;
+                case WaitingStates.Dest:
+                    _routeManager.DestStop = loc;
+                    break;
+            }
+        }
+
+        public enum WaitingStates
+        {
+            Start=0,
+            Dest=1,
+            NotWaiting=2
         }
     }
 }
