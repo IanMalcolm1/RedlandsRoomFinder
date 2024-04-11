@@ -40,14 +40,13 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+    <MauiIcon Include="Resources\AppIcon\uni_redlands_icon.jpg" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
     <!--Increase svg conversion size to reduce blurriness-->
     <MauiImage Update="Resources\Images\*.svg" Resize="True" BaseSize="144,144" />
 
@@ -61,13 +60,28 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Remove="Resources\Raw\pin_1.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\current_location.svg" />
 	  <None Remove="Resources\Images\hand_click.svg" />
 	  <None Remove="Resources\Images\hand_finger.svg" />
 	  <None Remove="Resources\Images\hand_finger_off.svg" />
+	  <None Remove="Resources\Images\pin.svg" />
+	  <None Remove="Resources\Images\pinned.svg" />
 	  <None Remove="Resources\Images\stairs_down.svg" />
 	  <None Remove="Resources\Images\stairs_up.svg" />
-	  <None Remove="Resources\Raw\testnetworkpackage.mmpk" />
+	  <None Remove="Resources\Raw\pin_1.svg" />
+	  <None Remove="Resources\Raw\RedlandsRoomMapv0-5.mmpk" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiImage Include="Resources\Raw\pin_1.svg">
+	    <Resize>True</Resize>
+	    <BaseSize>144,144</BaseSize>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </MauiImage>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -75,8 +89,9 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="Esri.ArcGISRuntime" Version="200.3.0" />
 		<PackageReference Include="Esri.ArcGISRuntime.Maui" Version="200.3.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
+		<PackageReference Include="Esri.ArcGISRuntime.Toolkit.Maui" Version="200.3.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.14" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.14" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
@@ -96,7 +111,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\testnetworkpackage.mmpk">
+	  <MauiAsset Update="Resources\Raw\RedlandsRoomMapv0-5.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </MauiAsset>
 	</ItemGroup>

@@ -6,7 +6,9 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using System.ComponentModel;
+using CommunityToolkit.Maui.Alerts;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using CommunityToolkit.Maui.Core;
 
 namespace RedlandsRoomFinder
 {
@@ -29,6 +31,7 @@ namespace RedlandsRoomFinder
             _mapRouteOverlay = new GraphicsOverlay { Id = "PopOverlay" };
             MainMapView.GraphicsOverlays?.Add(_mapRouteOverlay);
             MainMapViewModel.PropertyChanged += HandleMainMapViewPropertyChanged;
+            MainMapViewModel.RouteNotFound += HandleRouteNotFoundEvent;
         }
 
         private async void OnButtonClicked(object sender, EventArgs e)
@@ -44,17 +47,29 @@ namespace RedlandsRoomFinder
 
         private void HandleMainMapViewPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName=="RouteGraphic")
+            if (e.PropertyName=="RouteGraphics")
             {
                 UpdateRouteGraphic();
             }
         }
 
+        private async void HandleRouteNotFoundEvent(object? sender, EventArgs e)
+        {
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+            var toast = Toast.Make("No route was found");
+
+            await toast.Show(cancellationTokenSource.Token);
+        }
+
         private void UpdateRouteGraphic()
         {
             _mapRouteOverlay.Graphics.Clear();
-            if (MainMapViewModel.RouteGraphic != null)
-                _mapRouteOverlay.Graphics.Add(MainMapViewModel.RouteGraphic);
+            if (MainMapViewModel.RouteGraphics != null)
+                foreach (Graphic? graphic in MainMapViewModel.RouteGraphics)
+                {
+                    _mapRouteOverlay.Graphics.Add(graphic);
+                }
         }
     }
 }

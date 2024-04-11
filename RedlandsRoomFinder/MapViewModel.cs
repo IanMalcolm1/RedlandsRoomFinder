@@ -2,35 +2,46 @@
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Location;
 using Esri.ArcGISRuntime.Mapping;
-using Esri.ArcGISRuntime.Mapping.Floor;
-using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Map = Esri.ArcGISRuntime.Mapping.Map;
 
 namespace RedlandsRoomFinder
 {
     /* TODO
-     * isChoosingLocation: field for when user is clicking a point to choose their location
      * FloorLayerID: maybe search through feature layer names to find the correct id on loading the map
      */
     internal class MapViewModel : INotifyPropertyChanged
     {
-        private const int FloorLayerID = 1;
-        private const int TotalFloors = 2;
+        private const String MAP_PACKAGE_NAME = "RedlandsRoomMapv0-5.mmpk";
+        private const String ROOMS_LAYER_NAME = "Indoor Spaces";
+        private const String FLOOR_ATTRIBUTE_NAME = "FloorNum";
+        private const int TOTAL_FLOORS = 6;
+        private const int FLOOR_HEIGHT = 100;
+
+        private int RoomsLayerIndex;
 
         private Map? _map;
         private FeatureLayer? _roomsLayer;
         private int _floor;
 
         private RouteManager _routeManager;
+        private List<Graphic> _routeGraphics;
+        private SimpleMarkerSymbol _startStopSymbol;
+        private SimpleMarkerSymbol _destStopSymbol;
+        private SimpleLineSymbol _routeLineSymbol;
+
         private WaitingStates _waitingState;
 
         public MapViewModel()
         {
             _ = Initialize();
+
+            _startStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Blue, 7);
+            _destStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Gold, 7);
+            _routeLineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.LightBlue, 2);
 
             _waitingState = WaitingStates.NotWaiting;
 
@@ -52,6 +63,7 @@ namespace RedlandsRoomFinder
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler? RouteNotFound;
 
         public Map? Map
         {
@@ -59,9 +71,14 @@ namespace RedlandsRoomFinder
             set { _map = value; OnPropertyChanged(); }
         }
 
-        public Graphic? RouteGraphic
+        public List<Graphic> RouteGraphics
         {
-            get => _routeManager?.RouteGraphic;
+            get => _routeGraphics;
+            private set
+            {
+                _routeGraphics = value;
+                OnPropertyChanged(nameof(RouteGraphics));
+            }
         }
 
         public WaitingStates WaitingState
@@ -85,10 +102,11 @@ namespace RedlandsRoomFinder
         {
             set
             {
-                if (value>=0 && value<TotalFloors)
+                if (value>=0 && value<TOTAL_FLOORS)
                 {
                     _floor = value;
                     FilterFloors();
+                    updateRouteGraphics();
                     OnPropertyChanged();
                 }
             }
@@ -98,24 +116,35 @@ namespace RedlandsRoomFinder
         private async Task Initialize()
         {
             await SetUpMap();
-            _roomsLayer = (FeatureLayer?)_map?.OperationalLayers[FloorLayerID];
-            Floor = 0;
+            RoomsLayerIndex = getRoomsLayerIndex();
+            _roomsLayer = (FeatureLayer?)_map?.OperationalLayers[RoomsLayerIndex];
+            Floor = 1;
 
-            _routeManager = new RouteManager(_map.TransportationNetworks[0]);
-            _routeManager.PropertyChanged += HandleRouteChangedEvent;
+            _routeManager = new RouteManager(_map.TransportationNetworks[0], FLOOR_HEIGHT);
+            _routeManager.RouteGeometryChanged += HandleRouteChangedEvent;
+            _routeManager.RouteNotFound += HandleRouteNotFoundEvent;
         }
 
         private async Task SetUpMap()
         {
             /* Bundled assets are read-only. This copies the package to the AppDataDirectory
              * so that it can be modified if necessary *shrugs* */
-            string packageName = "testnetworkpackage.mmpk";
-            string newPath = await moveToAppDataDirectory(packageName);
+            string newPath = await moveToAppDataDirectory(MAP_PACKAGE_NAME);
 
             /* Map stuff */
             MobileMapPackage mapPackage = new MobileMapPackage(newPath);
             await mapPackage.LoadAsync();
             this.Map = mapPackage.Maps.FirstOrDefault();
+        }
+
+        private int getRoomsLayerIndex()
+        {
+            for (int i=0; i<_map?.OperationalLayers.Count; i++)
+            {
+                if (_map.OperationalLayers[i].Name.Equals(ROOMS_LAYER_NAME))
+                    return i;
+            }
+            return -1;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
@@ -125,7 +154,12 @@ namespace RedlandsRoomFinder
 
         private void HandleRouteChangedEvent(object? sender, EventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RouteGraphic)));
+            updateRouteGraphics();
+        }
+
+        private void HandleRouteNotFoundEvent(object? sender, EventArgs e)
+        {
+            RouteNotFound?.Invoke(this, e);
         }
 
         private async Task<string> moveToAppDataDirectory(string fileName)
@@ -144,9 +178,7 @@ namespace RedlandsRoomFinder
 
         private void FilterFloors()
         {
-            if ( _roomsLayer== null ) { return; } //TODO: raise exception
-
-            _roomsLayer.DefinitionExpression = $"Floor = {_floor}";
+            _roomsLayer.DefinitionExpression = $"{FLOOR_ATTRIBUTE_NAME} = {_floor}";
         }
 
         public async Task SelectLocation(MapPoint loc)
@@ -165,26 +197,51 @@ namespace RedlandsRoomFinder
             var queryResult = await _roomsLayer.FeatureTable.QueryFeaturesAsync(queryParams);
             foreach (Feature feature in queryResult)
             {
-                var featureFloor = (short) feature.Attributes["Floor"];
+                var featureFloor = (short) feature.Attributes[FLOOR_ATTRIBUTE_NAME];
                 if (featureFloor == _floor)
                 {
                     _roomsLayer.SelectFeature(feature);
                 }
             }
 
+            var loc_z = new MapPoint(loc.X, loc.Y, (_floor - 1) * FLOOR_HEIGHT, loc.SpatialReference);
+
             switch (_waitingState)
             {
                 case WaitingStates.NotWaiting:
                     return;
                 case WaitingStates.Start:
-                    _routeManager.StartStop = loc;
+                    _routeManager.StartStop = loc_z;
                     break;
                 case WaitingStates.Dest:
-                    _routeManager.DestStop = loc;
+                    _routeManager.DestStop = loc_z;
                     break;
             }
         }
 
+        private void updateRouteGraphics()
+        {
+            if (_routeManager == null)
+            {
+                return;
+            }
+
+            List<Graphic> graphics = new List<Graphic>()
+            {
+                new Graphic(_routeManager.StartStop, _startStopSymbol),
+                new Graphic(_routeManager.DestStop, _destStopSymbol)
+            };
+
+            foreach(RouteManager.RouteLine line in _routeManager.RouteLines)
+            {
+                if (line.floor == Floor)
+                {
+                    graphics.Add(new Graphic(line.line, _routeLineSymbol));
+                }
+            }
+
+            RouteGraphics = graphics;
+        }
         public enum WaitingStates
         {
             Start=0,
