@@ -40,7 +40,7 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-    <MauiIcon Include="Resources\AppIcon\uni_redlands_icon.jpg" />
+    <MauiIcon Include="Resources\AppIcon\appicon.jpg" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />

@@ -32,6 +32,7 @@ namespace RedlandsRoomFinder
         private SimpleMarkerSymbol _startStopSymbol;
         private SimpleMarkerSymbol _destStopSymbol;
         private SimpleLineSymbol _routeLineSymbol;
+        private SimpleLineSymbol _routeLineSymbolHidden;
 
         private WaitingStates _waitingState;
 
@@ -41,7 +42,8 @@ namespace RedlandsRoomFinder
 
             _startStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Blue, 7);
             _destStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Gold, 7);
-            _routeLineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.LightBlue, 2);
+            _routeLineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Purple, 2);
+            _routeLineSymbolHidden = new SimpleLineSymbol(SimpleLineSymbolStyle.Dash, System.Drawing.Color.FromArgb(192,255,0,255), 2);
 
             _waitingState = WaitingStates.NotWaiting;
 
@@ -237,6 +239,10 @@ namespace RedlandsRoomFinder
                 if (line.floor == Floor)
                 {
                     graphics.Add(new Graphic(line.line, _routeLineSymbol));
+                }
+                else
+                {
+                    graphics.Add(new Graphic(line.line, _routeLineSymbolHidden));
                 }
             }
 
