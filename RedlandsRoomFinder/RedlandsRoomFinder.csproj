@@ -73,7 +73,6 @@
 	  <None Remove="Resources\Images\stairs_down.svg" />
 	  <None Remove="Resources\Images\stairs_up.svg" />
 	  <None Remove="Resources\Raw\pin_1.svg" />
-	  <None Remove="Resources\Raw\RedlandsRoomMapv0-5.mmpk" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -111,7 +110,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\RedlandsRoomMapv0-5.mmpk">
+	  <MauiAsset Update="Resources\Raw\RedlandsRoomMapv0-6.mmpk">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </MauiAsset>
 	</ItemGroup>

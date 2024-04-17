@@ -63,9 +63,9 @@
                     <ColumnDefinition Width="{Binding Dimension, Mode=OneWay}"/>
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
-                <arcgis:SearchView GeoView="{Binding Source={Reference MainMapView}}" Grid.Column="1"/>
-                <!--<SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>-->
+                <arcgis:SearchView GeoView="{Binding Source={Reference MainMapView}}" Grid.ColumnSpan="2"/>
+                <!--<Label x:Name="startLabel" Text="Start:" VerticalTextAlignment="Center"/>
+                <SearchBar Grid.Column="1" VerticalOptions="Center" VerticalTextAlignment="Center" Placeholder="Search room or building..."/>-->
                 <ImageButton Source="current_location.png" Clicked="OnButtonClicked" Aspect="AspectFill" Grid.Column="2"/>
                 <ImageButton Source="hand_finger.png"
                              Aspect="AspectFill"
@@ -88,20 +88,21 @@
                 x:DataType="local:ObservableDimension">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition>
+                    <!--<ColumnDefinition>
                         <ColumnDefinition.Width>
-                            <!-- Needs to match width of start label -->
+                            --><!-- Needs to match width of start label --><!--
                             <MultiBinding Converter="{StaticResource MathConverter}" ConverterParameter="max(x0, 0)">
                                 <Binding Path="Width" Source="{x:Reference startLabel}"/>
                             </MultiBinding>
                         </ColumnDefinition.Width>
-                    </ColumnDefinition>
+                    </ColumnDefinition>-->
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{Binding Dimension, Mode=OneWay}"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Text="Dest:" VerticalTextAlignment="Center"/>
-                <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/>
+                <arcgis:SearchView GeoView="{Binding Source={Reference MainMapView}}"/>
+                <!-- <Label Text="Dest:" VerticalTextAlignment="Center"/>
+                <SearchBar Grid.Column="1" VerticalOptions="Center" Placeholder="Search room or building..."/> -->
                 <ImageButton Source="hand_finger.png"
                              Aspect="AspectFill"
                              Grid.Column="2"
@@ -130,6 +131,7 @@
                     <x:String>G</x:String>
                     <x:String>F1</x:String>
                     <x:String>F2</x:String>
+                    <x:String>F3</x:String>
                 </x:Array>
             </Picker.ItemsSource>
         </Picker>

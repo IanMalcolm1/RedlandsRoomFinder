@@ -15,10 +15,10 @@ namespace RedlandsRoomFinder
      */
     internal class MapViewModel : INotifyPropertyChanged
     {
-        private const String MAP_PACKAGE_NAME = "RedlandsRoomMapv0-5.mmpk";
+        private const String MAP_PACKAGE_NAME = "RedlandsRoomMapv0-6.mmpk";
         private const String ROOMS_LAYER_NAME = "Indoor Spaces";
         private const String FLOOR_ATTRIBUTE_NAME = "FloorNum";
-        private const int TOTAL_FLOORS = 6;
+        private const int TOTAL_FLOORS = 5;
         private const int FLOOR_HEIGHT = 100;
 
         private int RoomsLayerIndex;
@@ -40,10 +40,10 @@ namespace RedlandsRoomFinder
         {
             _ = Initialize();
 
-            _startStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Blue, 7);
-            _destStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Gold, 7);
-            _routeLineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Purple, 2);
-            _routeLineSymbolHidden = new SimpleLineSymbol(SimpleLineSymbolStyle.Dash, System.Drawing.Color.FromArgb(192,255,0,255), 2);
+            _startStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Blue, 16);
+            _destStopSymbol = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Gold, 16);
+            _routeLineSymbol = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.Purple, 4);
+            _routeLineSymbolHidden = new SimpleLineSymbol(SimpleLineSymbolStyle.Dash, System.Drawing.Color.FromArgb(192,255,0,255), 5);
 
             _waitingState = WaitingStates.NotWaiting;
 
@@ -228,23 +228,28 @@ namespace RedlandsRoomFinder
                 return;
             }
 
-            List<Graphic> graphics = new List<Graphic>()
-            {
-                new Graphic(_routeManager.StartStop, _startStopSymbol),
-                new Graphic(_routeManager.DestStop, _destStopSymbol)
-            };
+            List<Graphic> graphics = new List<Graphic>();
+            Graphic? floorGraphic = null;
 
             foreach(RouteManager.RouteLine line in _routeManager.RouteLines)
             {
                 if (line.floor == Floor)
                 {
-                    graphics.Add(new Graphic(line.line, _routeLineSymbol));
+                    floorGraphic = new Graphic(line.line, _routeLineSymbol);
                 }
                 else
                 {
                     graphics.Add(new Graphic(line.line, _routeLineSymbolHidden));
                 }
             }
+
+            if (floorGraphic != null)
+            {
+                graphics.Insert(0,floorGraphic);
+            }
+
+            graphics.Add(new Graphic(_routeManager.DestStop, _destStopSymbol));
+            graphics.Add(new Graphic(_routeManager.StartStop, _startStopSymbol));
 
             RouteGraphics = graphics;
         }

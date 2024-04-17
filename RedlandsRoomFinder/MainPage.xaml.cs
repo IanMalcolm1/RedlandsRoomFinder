@@ -30,6 +30,15 @@ namespace RedlandsRoomFinder
 
             _mapRouteOverlay = new GraphicsOverlay { Id = "PopOverlay" };
             MainMapView.GraphicsOverlays?.Add(_mapRouteOverlay);
+
+            MainMapView.PropertyChanged += (o, e) =>
+            {
+                if (e.PropertyName == nameof(MainMapView.LocationDisplay))
+                {
+                    _ = DisplayDeviceLocationAsync();
+                }
+            };
+
             MainMapViewModel.PropertyChanged += HandleMainMapViewPropertyChanged;
             MainMapViewModel.RouteNotFound += HandleRouteNotFoundEvent;
         }
@@ -60,6 +69,16 @@ namespace RedlandsRoomFinder
             var toast = Toast.Make("No route was found");
 
             await toast.Show(cancellationTokenSource.Token);
+        }
+
+        private async Task DisplayDeviceLocationAsync()
+        {
+
+            PermissionStatus status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+            MainMapView.LocationDisplay.IsEnabled = status == PermissionStatus.Granted || status == PermissionStatus.Restricted;
+            MainMapView.LocationDisplay.AutoPanMode = LocationDisplayAutoPanMode.Recenter;
+
         }
 
         private void UpdateRouteGraphic()
