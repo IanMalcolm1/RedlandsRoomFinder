@@ -1,6 +1,0 @@
-﻿Label to indicate that in choosing location mode
-Button to cancel location picking
-
-Be more MMVM
-
-Raise exceptions when map classes are null

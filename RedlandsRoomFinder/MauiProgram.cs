@@ -7,13 +7,15 @@ namespace RedlandsRoomFinder
 {
     public static class MauiProgram
     {
+        const String ESRI_API_KEY = "Add your Esri API Key or OAuth Temporary Token here";
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
                 .UseArcGISRuntime(config =>
-                config.UseApiKey("AAPK18ce5b51a60a49f99077444fa795b959WbLnkf4zGh5vJXsfyxLF24RP7c_jWXviQgTIraGpU8xlvoWlffbHWp0BI5DbEykz"))
+                config.UseApiKey(ESRI_API_KEY))
                 .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
